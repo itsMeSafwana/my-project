@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <time.h>
+
+char* generate_password(const char* first_name, const char* last_name, const char* registration_numbers) {
+    char uppercase_alphabet;
+    char numbers[5];
+    char special_characters[3];
+    char initials[3];
+    char odd_letters_first_name[50];
+    char even_letters_last_name[50];
+
+    // Rule (d) - Initials of first and last name
+    initials[0] = toupper(first_name[0]);
+    initials[1] = toupper(last_name[0]);
+    initials[2] = '\0';
+
+    // Rule (e) - All odd letters of the first name
+    int j = 0;
+    for (int i = 0; first_name[i] != '\0'; i++) {
+        if (i % 2 == 0) {
+            odd_letters_first_name[j++] = first_name[i];
+        }
+    }
+    odd_letters_first_name[j] = '\0';
+
+    // Rule (f) - All even letters of the last name
+    j = 0;
+    for (int i = 1; last_name[i] != '\0'; i += 2) {
+        even_letters_last_name[j++] = last_name[i];
+    }
+    even_letters_last_name[j] = '\0';
+
+    // Rule (a) - At least one uppercase alphabet
+    uppercase_alphabet = 'A' + rand() % 26;
+
+    // Rule (b) - At least 4 numbers, including two registration numbers
+    numbers[0] = registration_numbers[0];
+    numbers[1] = registration_numbers[1];
+    numbers[2] = '0' + rand() % 10; // Random number
+    numbers[3] = registration_numbers[2];
+    numbers[4] = '0' + rand() % 10; // Random number
+    numbers[5] = '\0';
+
+    // Rule (c) - At least 2 special characters
+    special_characters[0] = '!' + rand() % (126 - '!'); // ASCII range for special characters
+    special_characters[1] = '!' + rand() % (126 - '!'); // ASCII range for special characters
+    special_characters[2] = '\0';
+
+    // Concatenate all components to form the password
+    char* password = (char*)malloc(sizeof(char) * 18); // 16 characters + null terminator
+    sprintf(password, "%c%s%s%s%s%s", uppercase_alphabet, numbers, special_characters, initials, odd_letters_first_name, even_letters_last_name);
+
+    // Shuffle the password to ensure randomness
+    int length = strlen(password);
+    for (int i = 0; i < length; i++) {
+        int j = rand() % length;
+        char temp = password[i];
+        password[i] = password[j];
+        password[j] = temp;
+    }
+
+    return password;
+}
+
+int main() {
+    srand(time(NULL)); // Seed for randomization
+    const char* first_name = "John";
+    const char* last_name = "Doe";
+    const char* registration_numbers = "123456";
+
+    char* password = generate_password(first_name, last_name, registration_numbers);
+    printf("Generated password: %s\n", password);
+
+    free(password); // Free allocated memory
+    return 0;
+}
