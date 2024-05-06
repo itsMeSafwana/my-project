@@ -1,0 +1,87 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+
+// Function prototypes
+bool parse_S(char*);
+bool parse_X(char*);
+bool parse_X_prime(char*);
+bool parse_Y(char*);
+bool parse_Y_prime(char*);
+bool parse_Z(char*);
+
+// Function to parse S
+bool parse_S(char* input_string) {
+    if (input_string[0] == 'X' && input_string[1] == '$')
+        return true;
+    else
+        return false;
+}
+
+// Function to parse X
+bool parse_X(char* input_string) {
+    if (parse_Y(input_string)) {
+        char* remaining_string = input_string + 1;
+        return parse_X_prime(remaining_string);
+    } else {
+        return false;
+    }
+}
+
+// Function to parse X'
+bool parse_X_prime(char* input_string) {
+    if (*input_string == '\0')
+        return true;
+    else if (*input_string == '%' && parse_Y(input_string + 1)) {
+        return parse_X_prime(input_string + 2);
+    } else {
+        return false;
+    }
+}
+
+// Function to parse Y
+bool parse_Y(char* input_string) {
+    if (parse_Z(input_string)) {
+        char* remaining_string = input_string + 1;
+        return parse_Y_prime(remaining_string);
+    } else {
+        return false;
+    }
+}
+
+// Function to parse Y'
+bool parse_Y_prime(char* input_string) {
+    if (*input_string == '\0')
+        return true;
+    else if (*input_string == '&' && parse_Z(input_string + 1)) {
+        return parse_Y_prime(input_string + 2);
+    } else {
+        return false;
+    }
+}
+
+// Function to parse Z
+bool parse_Z(char* input_string) {
+    if (*input_string == 'k') {
+        char* remaining_string = input_string + 1;
+        if (parse_X(remaining_string) && input_string[strlen(input_string) - 1] == 'k')
+            return true;
+    } else if (*input_string == 'g') {
+        return true;
+    }
+    return false;
+}
+
+int main() {
+    char input_string[100];
+    printf("Enter an input string: ");
+    scanf("%s", input_string);
+
+    if (parse_S(input_string)) {
+        printf("Input string is accepted.\n");
+    } else {
+        printf("Input string is not accepted.\n");
+    }
+
+    return 0;
+}
